@@ -1,0 +1,42 @@
+# .pre-commit-config.yaml
+
+default_stages: [commit]
+fail_fast: true  # Stops running hooks after the first failure
+
+repos:
+  # 1. Standard Git Hooks (Basic Sanity Checks)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: debug-statements  # Prevents committing stray print() or breakpoint()
+
+  # 2. Code Formatting (Black)
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3.11
+
+  # 3. Linting and Import Sorting (Ruff)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
+
+  # 4. Local Hooks: Enforcing Tests (Pytest)
+  # We run this as a local hook so it uses your current virtual environment
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: Run Pytest (Unit & Integration)
+        entry: pytest tests/
+        language: system
+        pass_filenames: false
+        always_run: true
